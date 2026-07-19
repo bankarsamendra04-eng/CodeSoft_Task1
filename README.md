@@ -3,7 +3,7 @@
 A sleek, graphical Number Guessing Game built using Java and Swing. The project follows the **MVC (Model-View-Controller)** architecture for clean, maintainable, and scalable code.
 
 ## 📸 Features
-- **3 Difficulty Levels**: Easy (0-100), Medium (101-500), Hard (501-1000).
+- **3 Difficulty Levels**: Easy (0-100), Medium (0-200), Hard (0-500).
 - **Dynamic Scoring System**: Tracks current score, highest score, and games played.
 - **Visual Feedback**: Color-coded feedback (Too high, Too low, Invalid input).
 - **Modern UI**: Custom fonts, colors, and centered layouts using standard Java Swing.
