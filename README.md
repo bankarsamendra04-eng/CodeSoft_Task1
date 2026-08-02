@@ -23,5 +23,5 @@ This project is separated into specific packages based on the MVC pattern:
 ### Compiling and Running via Command Line
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YourUsername/NumberGuessingGame.git
+   git clone https://github.com/bankarsamendra04-eng/NumberGuessingGame.git
    cd NumberGuessingGame/src
