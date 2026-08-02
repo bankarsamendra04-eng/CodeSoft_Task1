@@ -25,3 +25,14 @@ This project is separated into specific packages based on the MVC pattern:
    ```bash
    git clone https://github.com/bankarsamendra04-eng/NumberGuessingGame.git
    cd NumberGuessingGame/src
+``
+
+   ## Screenshots
+   <img width="848" height="731" alt="image" src="https://github.com/user-attachments/assets/e6da210a-67ac-4ed3-921f-c9a3bb30186a" />
+
+   <img width="849" height="733" alt="image" src="https://github.com/user-attachments/assets/374e28b8-e103-45d9-8605-9d90cfb3e715" />
+
+   <img width="850" height="729" alt="image" src="https://github.com/user-attachments/assets/c0bad8fc-d2ac-4308-95c4-d21442fb2f00" />
+
+
+
