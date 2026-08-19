@@ -1,6 +1,8 @@
 package com.game.controller;
 
 import com.game.model.GameModel;
+import com.game.model.Level;
+import com.game.util.GameMessages;
 import com.game.view.GameView;
 import javax.swing.Timer;
 import javax.swing.JOptionPane;
@@ -25,25 +27,23 @@ public class GameController {
     }
 
     private void startNewGameFlow(boolean countGame) {
-        String choice = view.showLevelSelectionDialog();
+        Level choice = view.showLevelSelectionDialog();
 
         if (choice == null) {
             if (!countGame) System.exit(0); // Exit if canceled on launch
             return;
         }
 
-        if (choice.contains("Easy")) model.setLevel("Easy");
-        else if (choice.contains("Medium")) model.setLevel("Medium");
-        else model.setLevel("Hard");
+        model.setLevel(choice);
 
         if (countGame) {
             model.incrementGamesPlayed();
-            view.setGamesPlayedText("Games Played : " + model.getTotalGames());
+            view.setGamesPlayedText(GameMessages.gamesPlayed(model.getTotalGames()));
         }
 
         model.generateSecretNumber();
-        view.setLevelText("Level : " + model.getCurrentLevel());
-        view.setFeedbackMessage("Guess number between " + model.getMinRange() + " and " + model.getMaxRange(), Color.ORANGE);
+        view.setLevelText(GameMessages.level(model.getCurrentLevel()));
+        view.setFeedbackMessage(GameMessages.guessRange(model.getCurrentLevel()), Color.ORANGE);
         view.clearGuessField();
         view.setGuessButtonEnabled(true);
     }
@@ -53,7 +53,7 @@ public class GameController {
             int guess = Integer.parseInt(view.getGuessInput());
 
             if (guess < model.getMinRange() || guess > model.getMaxRange()) {
-                view.setFeedbackMessage("Enter number between " + model.getMinRange() + " and " + model.getMaxRange(), Color.RED);
+                view.setFeedbackMessage(GameMessages.invalidRange(model.getCurrentLevel()), Color.RED);
                 return;
             }
 
@@ -64,9 +64,9 @@ public class GameController {
             } else if (model.getAttemptsLeft() <= 0) {
                 handleLoss();
             } else if (guess < model.getSecretNumber()) {
-                view.setFeedbackMessage("Too Low! Attempts Left : " + model.getAttemptsLeft(), Color.YELLOW);
+                view.setFeedbackMessage(GameMessages.attemptsLeft("Too Low!", model.getAttemptsLeft()), Color.YELLOW);
             } else {
-                view.setFeedbackMessage("Too High! Attempts Left : " + model.getAttemptsLeft(), Color.RED);
+                view.setFeedbackMessage(GameMessages.attemptsLeft("Too High!", model.getAttemptsLeft()), Color.RED);
             }
 
             view.clearGuessField();
@@ -79,12 +79,13 @@ public class GameController {
 
     private void handleWin() {
         model.addScore(10);
-        view.setScoreText("Score : " + model.getScore());
-        view.setHighScoreText("Highest Score : " + model.getHighestScore());
+        view.setScoreText(GameMessages.score(model.getScore()));
+        view.setHighScoreText(GameMessages.highestScore(model.getHighestScore()));
         view.setFeedbackMessage("Correct! You Win!", Color.GREEN);
         view.setGuessButtonEnabled(false);
 
-        view.showMessageDialog("Congratulations!\nLevel : " + model.getCurrentLevel() + "\nCorrect Number : " + model.getSecretNumber(), "Winner", JOptionPane.INFORMATION_MESSAGE);
+        view.showMessageDialog("Congratulations!\n" + GameMessages.level(model.getCurrentLevel())
+                + "\nCorrect Number : " + model.getSecretNumber(), "Winner", JOptionPane.INFORMATION_MESSAGE);
 
         Timer timer = new Timer(2000, e -> startNewGameFlow(true));
         timer.setRepeats(false);
