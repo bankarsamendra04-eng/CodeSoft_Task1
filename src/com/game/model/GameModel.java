@@ -11,23 +11,15 @@ public class GameModel {
     private int highestScore = 0;
     private int totalGames = 0;
 
-    private int minRange;
-    private int maxRange;
-    private String currentLevel = "Easy";
+    private Level currentLevel = Level.EASY;
 
-    public void setLevel(String level) {
+    public void setLevel(Level level) {
         this.currentLevel = level;
-        if (level.equals("Easy")) {
-            minRange = 0; maxRange = 100; attemptsLeft = 10;
-        } else if (level.equals("Medium")) {
-            minRange = 0; maxRange = 300; attemptsLeft = 10;
-        } else {
-            minRange = 0; maxRange = 500; attemptsLeft = 15;
-        }
+        this.attemptsLeft = level.getAttempts();
     }
 
     public void generateSecretNumber() {
-        secretNumber = random.nextInt(maxRange - minRange + 1) + minRange;
+        secretNumber = random.nextInt(getMaxRange() - getMinRange() + 1) + getMinRange();
     }
 
     public void incrementGamesPlayed() { totalGames++; }
@@ -43,7 +35,7 @@ public class GameModel {
     public int getScore() { return score; }
     public int getHighestScore() { return highestScore; }
     public int getTotalGames() { return totalGames; }
-    public int getMinRange() { return minRange; }
-    public int getMaxRange() { return maxRange; }
-    public String getCurrentLevel() { return currentLevel; }
+    public int getMinRange() { return currentLevel.getMinRange(); }
+    public int getMaxRange() { return currentLevel.getMaxRange(); }
+    public Level getCurrentLevel() { return currentLevel; }
 }

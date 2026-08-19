@@ -1,5 +1,8 @@
 package com.game.view;
 
+import com.game.model.Level;
+import com.game.util.GameMessages;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -16,26 +19,26 @@ public class GameView extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
-        getContentPane().setBackground(new Color(30, 30, 46));
+        getContentPane().setBackground(UiTheme.BACKGROUND);
         setLayout(new GridLayout(10, 1, 10, 15));
 
-        titleLabel = createLabel("NUMBER GUESSING GAME", new Font("Segoe UI", Font.BOLD, 24), Color.WHITE);
-        levelLabel = createLabel("Level : Easy", new Font("Segoe UI", Font.BOLD, 16), Color.CYAN);
-        messageLabel = createLabel("Select level to start", new Font("Segoe UI", Font.PLAIN, 16), Color.ORANGE);
-        scoreLabel = createLabel("Score : 0", new Font("Segoe UI", Font.BOLD, 16), Color.WHITE);
-        highestScoreLabel = createLabel("Highest Score : 0", new Font("Segoe UI", Font.BOLD, 16), Color.WHITE);
-        gamesPlayedLabel = createLabel("Games Played : 0", new Font("Segoe UI", Font.BOLD, 16), Color.WHITE);
+        titleLabel = createLabel("NUMBER GUESSING GAME", UiTheme.TITLE_FONT, Color.WHITE);
+        levelLabel = createLabel(GameMessages.level(Level.EASY), UiTheme.LABEL_FONT, Color.CYAN);
+        messageLabel = createLabel("Select level to start", UiTheme.MESSAGE_FONT, Color.ORANGE);
+        scoreLabel = createLabel(GameMessages.score(0), UiTheme.LABEL_FONT, Color.WHITE);
+        highestScoreLabel = createLabel(GameMessages.highestScore(0), UiTheme.LABEL_FONT, Color.WHITE);
+        gamesPlayedLabel = createLabel(GameMessages.gamesPlayed(0), UiTheme.LABEL_FONT, Color.WHITE);
 
         guessField = new JTextField();
-        guessField.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        guessField.setFont(UiTheme.INPUT_FONT);
         guessField.setHorizontalAlignment(JTextField.CENTER);
 
-        guessButton = createButton("Guess", new Color(0, 200, 83));
-        newGameButton = createButton("New Game", new Color(41, 98, 255));
-        exitButton = createButton("Exit", new Color(213, 0, 0));
+        guessButton = createButton("Guess", UiTheme.GUESS_BUTTON);
+        newGameButton = createButton("New Game", UiTheme.NEW_GAME_BUTTON);
+        exitButton = createButton("Exit", UiTheme.EXIT_BUTTON);
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-        buttonPanel.setBackground(new Color(30, 30, 46));
+        buttonPanel.setBackground(UiTheme.BACKGROUND);
         buttonPanel.add(guessButton);
         buttonPanel.add(newGameButton);
         buttonPanel.add(exitButton);
@@ -59,10 +62,15 @@ public class GameView extends JFrame {
         return button;
     }
 
-    public String showLevelSelectionDialog() {
-        String[] levels = {"Easy (0-100)", "Medium (0-300)", "Hard (0-500)"};
-        return (String) JOptionPane.showInputDialog(this, "Select Game Level", "Game Level",
-                JOptionPane.QUESTION_MESSAGE, null, levels, levels[0]);
+    public Level showLevelSelectionDialog() {
+        Level[] levels = Level.values();
+        String[] labels = new String[levels.length];
+        for (int i = 0; i < levels.length; i++) labels[i] = levels[i].getLabel();
+
+        String choice = (String) JOptionPane.showInputDialog(this, "Select Game Level", "Game Level",
+                JOptionPane.QUESTION_MESSAGE, null, labels, labels[0]);
+
+        return choice == null ? null : Level.fromLabel(choice);
     }
 
     public void showMessageDialog(String msg, String title, int type) {
