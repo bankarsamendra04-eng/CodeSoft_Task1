@@ -6,6 +6,15 @@ import java.awt.event.ActionListener;
 
 public class GameView extends JFrame {
 
+    private static final long serialVersionUID = 1L;
+
+    public static final String EASY_LEVEL = "Easy";
+    public static final String MEDIUM_LEVEL = "Medium";
+    public static final String HARD_LEVEL = "Hard";
+    public static final String EASY_LEVEL_OPTION = "Easy (0-100)";
+    public static final String MEDIUM_LEVEL_OPTION = "Medium (0-300)";
+    public static final String HARD_LEVEL_OPTION = "Hard (0-500)";
+
     private JLabel titleLabel, messageLabel, scoreLabel, highestScoreLabel, gamesPlayedLabel, levelLabel;
     private JTextField guessField;
     private JButton guessButton, newGameButton, exitButton;
@@ -60,7 +69,7 @@ public class GameView extends JFrame {
     }
 
     public String showLevelSelectionDialog() {
-        String[] levels = {"Easy (0-100)", "Medium (0-300)", "Hard (0-500)"};
+        String[] levels = {EASY_LEVEL_OPTION, MEDIUM_LEVEL_OPTION, HARD_LEVEL_OPTION};
         return (String) JOptionPane.showInputDialog(this, "Select Game Level", "Game Level",
                 JOptionPane.QUESTION_MESSAGE, null, levels, levels[0]);
     }
