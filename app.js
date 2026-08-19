@@ -13,15 +13,21 @@ const views = {
 
 const $ = selector => document.querySelector(selector);
 const toast = message => { const el = $("#toast"); el.textContent = message; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 2800); };
+let analysisReady = false;
+const maxResumeSize = 10 * 1024 * 1024;
+const supportedResumeExtensions = [".pdf", ".doc", ".docx", ".txt"];
 function renderGaps() {
   $("#gap-list").innerHTML = gapData.slice(0,3).map(g => `<div class="gap-item"><span class="skill-token ${g.tone}">${g.icon}</span><div><strong>${g.name}</strong><small>${g.detail}</small></div><span class="priority ${g.priority === "HIGH" ? "high" : "medium"}">${g.priority}</span><span class="gap-action">→</span></div>`).join("");
 }
 function showDashboard() {
+  analysisReady = true;
   $("#setup-view").classList.add("hidden"); $("#dashboard-view").classList.remove("hidden"); $("#detail-view").classList.add("hidden");
   $("#target-role-display").textContent = $("#role-select").value;
   renderGaps(); window.scrollTo({top:0,behavior:"smooth"}); toast("Analysis ready — your roadmap is waiting.");
 }
 function showView(view) {
+  if (!analysisReady) return;
+  $("#setup-view").classList.add("hidden");
   if (view === "overview") { $("#detail-view").classList.add("hidden"); $("#dashboard-view").classList.remove("hidden"); renderGaps(); }
   else { const content = views[view]; $("#dashboard-view").classList.add("hidden"); $("#detail-view").classList.remove("hidden"); $("#detail-view").innerHTML = `<div class="detail-header"><div class="eyebrow">${content.eyebrow}</div><h1>${content.title}</h1><p>${content.copy}</p></div>${content.html}`; }
   document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item.dataset.view === view)); $(".breadcrumb strong").textContent = view === "overview" ? "Overview" : contentName(view); window.scrollTo({top:0,behavior:"smooth"});
@@ -29,11 +35,20 @@ function showView(view) {
 const contentName = view => ({skills:"Skill gaps",roadmap:"Roadmap",projects:"Projects",interview:"Interview prep"})[view];
 document.addEventListener("click", event => {
   const viewButton = event.target.closest("[data-view]");
-  if (viewButton) { event.preventDefault(); if (!$("#dashboard-view").classList.contains("hidden") || viewButton.dataset.view === "overview") showView(viewButton.dataset.view); }
+  if (viewButton) { event.preventDefault(); showView(viewButton.dataset.view); }
   const toastButton = event.target.closest("[data-toast]"); if (toastButton) toast(toastButton.dataset.toast);
 });
 $("#analyze-button").addEventListener("click", showDashboard);
-$("#new-analysis").addEventListener("click", () => { $("#dashboard-view").classList.add("hidden"); $("#detail-view").classList.add("hidden"); $("#setup-view").classList.remove("hidden"); window.scrollTo({top:0,behavior:"smooth"}); });
+$("#new-analysis").addEventListener("click", () => { analysisReady = false; $("#dashboard-view").classList.add("hidden"); $("#detail-view").classList.add("hidden"); $("#setup-view").classList.remove("hidden"); window.scrollTo({top:0,behavior:"smooth"}); });
 $("#sample-button").addEventListener("click", () => { $("#file-label").textContent = "Sample profile loaded"; $("#dropzone").classList.add("dragover"); setTimeout(() => $("#dropzone").classList.remove("dragover"), 700); toast("Sample profile loaded — ready to analyze."); });
-$("#resume-file").addEventListener("change", event => { const file = event.target.files[0]; if (!file) return; if (file.size > 10 * 1024 * 1024) { toast("That file is larger than 10MB."); event.target.value = ""; return; } $("#file-label").textContent = file.name; toast("Resume added to your profile."); });
-const dropzone = $("#dropzone"); ["dragenter","dragover"].forEach(type => dropzone.addEventListener(type, e => { e.preventDefault(); dropzone.classList.add("dragover"); })); ["dragleave","drop"].forEach(type => dropzone.addEventListener(type, e => { e.preventDefault(); dropzone.classList.remove("dragover"); })); dropzone.addEventListener("drop", e => { const file = e.dataTransfer.files[0]; if (file) { $("#file-label").textContent = file.name; toast("Resume added to your profile."); } });
+function acceptResume(file) {
+  if (!file) return false;
+  const extension = `.${file.name.split(".").pop().toLowerCase()}`;
+  if (!supportedResumeExtensions.includes(extension)) { toast("Use a PDF, DOC, DOCX, or TXT resume."); return false; }
+  if (file.size > maxResumeSize) { toast("That file is larger than 10MB."); return false; }
+  $("#file-label").textContent = file.name;
+  toast("Resume added to your profile.");
+  return true;
+}
+$("#resume-file").addEventListener("change", event => { const file = event.target.files[0]; if (file && !acceptResume(file)) event.target.value = ""; });
+const dropzone = $("#dropzone"); ["dragenter","dragover"].forEach(type => dropzone.addEventListener(type, e => { e.preventDefault(); dropzone.classList.add("dragover"); })); ["dragleave","drop"].forEach(type => dropzone.addEventListener(type, e => { e.preventDefault(); dropzone.classList.remove("dragover"); })); dropzone.addEventListener("drop", e => { const file = e.dataTransfer.files[0]; if (acceptResume(file)) { try { const transfer = new DataTransfer(); transfer.items.add(file); $("#resume-file").files = transfer.files; } catch {} } });
