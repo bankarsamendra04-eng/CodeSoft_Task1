@@ -17,7 +17,7 @@ public class GameController {
         // Attach event listeners to the view
         this.view.addGuessListener(e -> runSafely(this::checkGuess));
         this.view.addNewGameListener(e -> runSafely(() -> startNewGameFlow(true)));
-        this.view.addExitListener(e -> runSafely(() -> System.exit(0)));
+        this.view.addExitListener(e -> System.exit(0));
 
         // Start initial game
         startNewGameFlow(false);
@@ -29,6 +29,9 @@ public class GameController {
 
         if (choice == null) {
             if (!countGame) System.exit(0); // Exit if canceled on launch
+            view.setGuessButtonEnabled(false);
+            view.clearGuessField();
+            view.setFeedbackMessage("Select New Game to start a game.", Color.ORANGE);
             return;
         }
 
@@ -80,8 +83,7 @@ public class GameController {
             view.clearGuessField();
 
         } catch (NumberFormatException ex) {
-            System.err.println("Invalid guess input: \"" + input + "\"");
-            ex.printStackTrace();
+            System.err.println("Invalid guess input: \"" + input + "\": " + ex.getMessage());
             view.setFeedbackMessage("Please enter a valid whole number!", Color.RED);
             view.clearGuessField();
         }
@@ -103,6 +105,7 @@ public class GameController {
 
     private void handleLoss() {
         view.setFeedbackMessage("Game Over! Number was " + model.getSecretNumber(), Color.RED);
+        view.setGuessButtonEnabled(false);
         view.showMessageDialog("Game Over!\nCorrect Number : " + model.getSecretNumber(), "Game Over", JOptionPane.ERROR_MESSAGE);
         startNewGameFlow(true);
     }

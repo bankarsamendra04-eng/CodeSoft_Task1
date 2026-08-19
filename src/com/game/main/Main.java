@@ -31,6 +31,13 @@ public class Main {
         if (message == null || message.trim().isEmpty()) {
             message = throwable.getClass().getName();
         }
-        JOptionPane.showMessageDialog(null, context + ":\n" + message, "Error", JOptionPane.ERROR_MESSAGE);
+        String dialogMessage = context + ":\n" + message;
+        Runnable showDialog = () -> JOptionPane.showMessageDialog(
+                null, dialogMessage, "Error", JOptionPane.ERROR_MESSAGE);
+        if (SwingUtilities.isEventDispatchThread()) {
+            showDialog.run();
+        } else {
+            SwingUtilities.invokeLater(showDialog);
+        }
     }
 }
