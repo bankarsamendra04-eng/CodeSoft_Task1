@@ -27,6 +27,18 @@ This project is separated into specific packages based on the MVC pattern:
    cd NumberGuessingGame/src
 ``
 
+## 🧪 Running the Tests
+
+The project ships a Maven build (`pom.xml`) that compiles `src/`, runs the JUnit 5 tests in `test/`, and produces a JaCoCo coverage report.
+
+```bash
+mvn test
+```
+
+Coverage report: `target/site/jacoco/index.html`
+
+The view and controller tests drive real Swing components, so they need a display. On a headless machine they are skipped automatically; run them under a virtual display (e.g. `xvfb-run mvn test`) to execute them.
+
    ## Screenshots
    <img width="848" height="731" alt="image" src="https://github.com/user-attachments/assets/e6da210a-67ac-4ed3-921f-c9a3bb30186a" />
 
