@@ -15,9 +15,9 @@ public class GameController {
         this.view = view;
 
         // Attach event listeners to the view
-        this.view.addGuessListener(e -> checkGuess());
-        this.view.addNewGameListener(e -> startNewGameFlow(true));
-        this.view.addExitListener(e -> System.exit(0));
+        this.view.addGuessListener(e -> runSafely(this::checkGuess));
+        this.view.addNewGameListener(e -> runSafely(() -> startNewGameFlow(true)));
+        this.view.addExitListener(e -> runSafely(() -> System.exit(0)));
 
         // Start initial game
         startNewGameFlow(false);
@@ -32,9 +32,10 @@ public class GameController {
             return;
         }
 
-        if (choice.contains("Easy")) model.setLevel("Easy");
-        else if (choice.contains("Medium")) model.setLevel("Medium");
-        else model.setLevel("Hard");
+        if (GameView.EASY_LEVEL_OPTION.equals(choice)) model.setLevel(GameView.EASY_LEVEL);
+        else if (GameView.MEDIUM_LEVEL_OPTION.equals(choice)) model.setLevel(GameView.MEDIUM_LEVEL);
+        else if (GameView.HARD_LEVEL_OPTION.equals(choice)) model.setLevel(GameView.HARD_LEVEL);
+        else throw new IllegalArgumentException("Unknown level selection: " + choice);
 
         if (countGame) {
             model.incrementGamesPlayed();
@@ -49,8 +50,15 @@ public class GameController {
     }
 
     private void checkGuess() {
+        String input = view.getGuessInput().trim();
+        if (input.isEmpty()) {
+            view.setFeedbackMessage("Please enter a number!", Color.RED);
+            view.clearGuessField();
+            return;
+        }
+
         try {
-            int guess = Integer.parseInt(view.getGuessInput());
+            int guess = Integer.parseInt(input);
 
             if (guess < model.getMinRange() || guess > model.getMaxRange()) {
                 view.setFeedbackMessage("Enter number between " + model.getMinRange() + " and " + model.getMaxRange(), Color.RED);
@@ -72,7 +80,9 @@ public class GameController {
             view.clearGuessField();
 
         } catch (NumberFormatException ex) {
-            view.setFeedbackMessage("Please enter a valid number!", Color.RED);
+            System.err.println("Invalid guess input: \"" + input + "\"");
+            ex.printStackTrace();
+            view.setFeedbackMessage("Please enter a valid whole number!", Color.RED);
             view.clearGuessField();
         }
     }
@@ -86,7 +96,7 @@ public class GameController {
 
         view.showMessageDialog("Congratulations!\nLevel : " + model.getCurrentLevel() + "\nCorrect Number : " + model.getSecretNumber(), "Winner", JOptionPane.INFORMATION_MESSAGE);
 
-        Timer timer = new Timer(2000, e -> startNewGameFlow(true));
+        Timer timer = new Timer(2000, e -> runSafely(() -> startNewGameFlow(true)));
         timer.setRepeats(false);
         timer.start();
     }
@@ -95,5 +105,21 @@ public class GameController {
         view.setFeedbackMessage("Game Over! Number was " + model.getSecretNumber(), Color.RED);
         view.showMessageDialog("Game Over!\nCorrect Number : " + model.getSecretNumber(), "Game Over", JOptionPane.ERROR_MESSAGE);
         startNewGameFlow(true);
+    }
+
+    private void runSafely(Runnable action) {
+        try {
+            action.run();
+        } catch (Throwable ex) {
+            System.err.println("Unexpected error in game callback");
+            ex.printStackTrace();
+
+            String message = ex.getMessage();
+            if (message == null || message.trim().isEmpty()) {
+                message = ex.getClass().getName();
+            }
+            view.setFeedbackMessage("Unexpected error: " + message, Color.RED);
+            view.showMessageDialog("Unexpected error:\n" + message, "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
